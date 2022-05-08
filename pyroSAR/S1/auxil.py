@@ -96,7 +96,7 @@ class OSV(object):
     `requests timeouts <https://requests.readthedocs.io/en/master/user/advanced/#timeouts>`_
     """
     
-    def __init__(self, osvdir=None, timeout=300):
+    def __init__(self, osvdir=None, timeout=300, copernicus_auth=None):
         self.timeout = timeout
         if osvdir is None:
             try:
@@ -114,6 +114,13 @@ class OSV(object):
                             r'(?P<stop>[0-9]{8}T[0-9]{6})\.EOF'
         self._init_dir()
         self._reorganize()
+
+        if copernicus_auth is not None:
+            self.copernicus_user = copernicus_auth[0]
+            self.copernicus_pass = copernicus_auth[1]
+        else:
+            self.copernicus_user = "gnssguest"
+            self.copernicus_pass = "gnssguest"
     
     def __enter__(self):
         return self
@@ -264,7 +271,7 @@ class OSV(object):
     def __catch_gnss(self, sensor, start, stop, osvtype='POE'):
         url = 'https://scihub.copernicus.eu/gnss'
         redirect = 'https://dhusfeed.dhus.onda-dias.net/gnss'
-        auth = ('gnssguest', 'gnssguest')
+        auth = (self.copernicus_user, self.copernicus_pass)
         # a dictionary for storing the url arguments
         query = {}
         

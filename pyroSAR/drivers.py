@@ -1657,7 +1657,7 @@ class SAFE(ID):
         lon = [x[0] for x in coordinates]
         return {'xmin': min(lon), 'xmax': max(lon), 'ymin': min(lat), 'ymax': max(lat)}
     
-    def getOSV(self, osvdir=None, osvType='POE', returnMatch=False, useLocal=True, timeout=300, url_option=1):
+    def getOSV(self, osvdir=None, osvType='POE', returnMatch=False, useLocal=True, timeout=300, url_option=1, copernicus_auth=None):
         """
         download Orbit State Vector files for the scene
 
@@ -1680,6 +1680,9 @@ class SAFE(ID):
             
              - 1: https://scihub.copernicus.eu/gnss
              - 2: https://step.esa.int/auxdata/orbits/Sentinel-1
+        
+        copernicus_auth: tuple (str, str)
+            Optional tuple of username and password to use for scihub.copernicus.eu.
 
         Returns
         -------
@@ -1703,12 +1706,12 @@ class SAFE(ID):
                 return match if returnMatch else None
         
         if osvType in ['POE', 'RES']:
-            with S1.OSV(osvdir, timeout=timeout) as osv:
+            with S1.OSV(osvdir, timeout=timeout, copernicus_auth=copernicus_auth) as osv:
                 files = osv.catch(sensor=self.sensor, osvtype=osvType, start=before, stop=after,
                                   url_option=url_option)
         
         elif sorted(osvType) == ['POE', 'RES']:
-            with S1.OSV(osvdir, timeout=timeout) as osv:
+            with S1.OSV(osvdir, timeout=timeout, copernicus_auth=copernicus_auth) as osv:
                 files = osv.catch(sensor=self.sensor, osvtype='POE', start=before, stop=after,
                                   url_option=url_option)
                 if len(files) == 0:

@@ -1490,7 +1490,7 @@ def erode_edges(infile, only_boundary=False, connectedness=4, pixels=1):
     ras = None
 
 
-def orb_parametrize(scene, workflow, before, formatName, allow_RES_OSV=True, continueOnFail=False):
+def orb_parametrize(scene, workflow, before, formatName, allow_RES_OSV=True, continueOnFail=False, copernicus_auth=None):
     """
     convenience function for parametrizing an `Apply-Orbit-File` node and inserting it into a workflow.
     Required Sentinel-1 orbit files are directly downloaded.
@@ -1509,7 +1509,9 @@ def orb_parametrize(scene, workflow, before, formatName, allow_RES_OSV=True, con
         (only applies to Sentinel-1) Also allow the less accurate RES orbit files to be used?
     continueOnFail: bool
         continue SNAP processing if orbit correction fails?
-        
+    copernicus_auth: tuple(str, str)
+        Optional username and password for scihub.copernicus.eu.
+
     Returns
     -------
     Node
@@ -1522,11 +1524,11 @@ def orb_parametrize(scene, workflow, before, formatName, allow_RES_OSV=True, con
         orbitType = 'DORIS Precise VOR (ENVISAT) (Auto Download)'
     
     if formatName == 'SENTINEL-1':
-        match = scene.getOSV(osvType='POE', returnMatch=True)
+        match = scene.getOSV(osvType='POE', returnMatch=True, copernicus_auth=copernicus_auth)
         if match is None and allow_RES_OSV:
-            scene.getOSV(osvType='RES')
+            scene.getOSV(osvType='RES', copernicus_auth=copernicus_auth)
             orbitType = 'Sentinel Restituted (Auto Download)'
-    
+
     orb = parse_node('Apply-Orbit-File')
     workflow.insert_node(orb, before=before)
     orb.parameters['orbitType'] = orbitType
